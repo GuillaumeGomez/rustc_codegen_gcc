@@ -34,7 +34,7 @@ also add the calls we need to generate the GIMPLE:
 int main() {
     gcc_jit_context *ctxt = gcc_jit_context_acquire();
     create_code(ctxt, NULL);
-    gcc_jit_context_compile_to_file(ctxt, GCC_JIT_OUTPUT_KIND_DYNAMIC_LIBRARY, "tmp");
+    gcc_jit_context_compile_to_file(ctxt, GCC_JIT_OUTPUT_KIND_DYNAMIC_LIBRARY, "tmp.gimple");
     return 0;
 }
 ```
@@ -42,7 +42,7 @@ int main() {
 Then we can compile it by using:
 
 ```console
-gcc const.c -I `pwd`/gcc/gcc/jit/ -L `pwd`/gcc-build/gcc -lgccjit -o out
+gcc local.c -I `pwd`/gcc/gcc/jit/ -L `pwd`/gcc-build/gcc -lgccjit -o out
 ```
 
 And finally when you run it:
@@ -51,7 +51,7 @@ And finally when you run it:
 LD_LIBRARY_PATH=`pwd`/gcc-build/gcc ./out
 ```
 
-It should display:
+You should now have a file named `tmp.gimple` which should contain:
 
 ```c
 __attribute__((const))
