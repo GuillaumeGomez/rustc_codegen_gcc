@@ -83,40 +83,10 @@ impl<'gcc, 'tcx> StaticMethods for CodegenCx<'gcc, 'tcx> {
 
         let is_thread_local = attrs.flags.contains(CodegenFnAttrFlags::THREAD_LOCAL);
         let global = self.get_static_inner(def_id, val_llty);
-        let gcc_type = self.val_ty(global.to_rvalue());
-        let global = if val_llty == llty {
-            global
-        } else {
-            // If we created the global with the wrong type, correct the type.
 
-            // FIXME: Should we:
-            // * replace the global
-            // * update the existing global's type?
-            // * something else?
-
-            // let name = global.get_name();
-
-            // let new_global = self.define_global(name, gcc_type, is_thread_local, attrs.link_section);
-
-            // cx.get_or_insert_global();
-
-            // The old global has had its name removed but is returned by
-            // get_static since it is in the instance cache. Provide an
-            // alternative lookup that points to the new global so that
-            // global_asm! can compute the correct mangled symbol name
-            // for the global.
-            // self.renamed_statics.borrow_mut().insert(def_id, new_g);
-
-            // To avoid breaking any invariants, we leave around the old
-            // global for the moment; we'll replace all references to it
-            // with the new global later. (See base::codegen_backend.)
-            // self.statics_to_rauw.borrow_mut().push((g, new_g));
-            // new_global
-            global
-        };
+        global.to_rvalue().set_type(val_llty);
         set_global_alignment(self, global, alloc.align);
 
-        let value = self.bitcast_if_needed(value, gcc_type);
         global.global_set_initializer_rvalue(value);
 
         // As an optimization, all shared statics which do not have interior
